@@ -1,6 +1,7 @@
 import type { PostDto } from './post.dto.ts';
 import { PostRepository } from './post.repository.js';
 import mongoose, { Types } from 'mongoose';
+import  producerKafka from './post.producer.js';
 
 export class PostService {
 
@@ -12,7 +13,20 @@ export class PostService {
     }
 
     async createPost(postData: PostDto) {
-        return await this.repository.createPost(postData);
+        const post = await this.repository.createPost(postData);
+
+       await producerKafka.send({
+        messages: [
+            {
+                topic: 'my-topic',
+                key: 'hello',
+                value: 'world',
+            }
+        ]
+        });
+
+
+        return post;
     }
 
     async getPost(postId: string) {

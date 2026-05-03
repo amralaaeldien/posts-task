@@ -3,9 +3,14 @@ import mongoose from 'mongoose';
 import router from './posts/post.controller.js';
 
 
-import 'dotenv/config';
+import dotenv from 'dotenv'
+dotenv.config({ path: '../.env' })
 
-const URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/post_db';
+import 'dotenv/config'
+
+console.log('Environment variable MONGO_URI:', process.env.MONGO_URI);  
+
+const URI = (process.env.MONGO_URI) as string;
 const PORT = process.env.PORT || 3000;
 
 
