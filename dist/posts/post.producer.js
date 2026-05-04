@@ -1,20 +1,36 @@
-import { Producer, stringSerializers } from '@platformatic/kafka';
-const producerKafka = new Producer({
-    clientId: 'my-producer',
-    bootstrapBrokers: ['kafka:9091'],
-    serializers: stringSerializers
+import { Kafka } from "kafkajs";
+const broker = process.env.KAFKA_BROKER || "kafka:9092";
+export const kafka = new Kafka({
+    clientId: "posts-app",
+    brokers: [broker],
+    retry: {
+        initialRetryTime: 1000,
+        retries: 20,
+    },
 });
-import { Admin } from '@platformatic/kafka';
-// Create an admin client
-const admin = new Admin({
-    clientId: 'my-admin',
-    bootstrapBrokers: ['kafka:9092']
+export const producer = kafka.producer();
+export const consumer = kafka.consumer({
+    groupId: "posts-consumer-group",
 });
-// Create topics
-await admin.createTopics({
-    topics: ['my-topic'],
-    partitions: 3,
-    replicas: 1
-});
-export default producerKafka;
+export async function ensureTopics() {
+    const admin = kafka.admin();
+    await admin.connect();
+    try {
+        const topics = await admin.listTopics();
+        if (!topics.includes("post-created")) {
+            await admin.createTopics({
+                topics: [
+                    {
+                        topic: "post-created",
+                        numPartitions: 3,
+                        replicationFactor: 1,
+                    },
+                ],
+            });
+        }
+    }
+    finally {
+        await admin.disconnect();
+    }
+}
 //# sourceMappingURL=post.producer.js.map

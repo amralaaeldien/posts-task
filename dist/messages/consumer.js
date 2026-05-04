@@ -1,22 +1,44 @@
-import { Consumer, stringDeserializers } from '@platformatic/kafka';
-// Create a consumer with string deserialisers
-const consumer = new Consumer({
-    groupId: 'my-consumer-group',
-    clientId: 'my-consumer',
-    bootstrapBrokers: ['kafka:9093'],
-    deserializers: stringDeserializers
-});
-// Create a consumer stream
-const stream = await consumer.consume({
-    autocommit: true,
-    topics: ['my-topic'],
-    sessionTimeout: 10000,
-    heartbeatInterval: 500
-});
-// Option 1: Event-based consumption
-stream.on('data', message => {
-    console.log(`Received: ${message.key} -> ${message.value}`);
-});
-// Close the consumer when done
-await consumer.close();
+import { consumer, ensureTopics } from "../posts/post.producer.js";
+async function startConsumer() {
+    await ensureTopics();
+    await consumer.connect();
+    await consumer.subscribe({
+        topic: "post-created",
+        fromBeginning: false,
+    });
+    console.log("Consumer connected and subscribed");
+}
+async function runConsumer() {
+    await consumer.run({
+        eachMessage: async ({ topic, partition, message }) => {
+            try {
+                const value = message.value?.toString();
+                if (!value)
+                    return;
+                const data = JSON.parse(value);
+                console.log("Received message:", {
+                    topic,
+                    partition,
+                    key: message.key?.toString(),
+                    data,
+                });
+            }
+            catch (error) {
+                console.error("Error processing message:", error);
+            }
+        },
+    });
+}
+const shutdown = async () => {
+    try {
+        await consumer.disconnect();
+    }
+    finally {
+        process.exit(0);
+    }
+};
+process.on("SIGINT", shutdown);
+process.on("SIGTERM", shutdown);
+await startConsumer();
+await runConsumer();
 //# sourceMappingURL=consumer.js.map

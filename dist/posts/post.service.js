@@ -1,25 +1,23 @@
 import { PostRepository } from './post.repository.js';
-import mongoose, { Types } from 'mongoose';
-import producerKafka from './post.producer.js';
+import { producer } from './post.producer.js';
 export class PostService {
     repository;
     constructor(repository = new PostRepository()) {
         this.repository = repository;
     }
     async listPosts() {
-        const posts = await this.repository.listPosts();
-        return posts;
+        return await this.repository.listPosts();
     }
     async createPost(postData) {
         const post = await this.repository.createPost(postData);
-        await producerKafka.send({
+        await producer.send({
+            topic: "post-created",
             messages: [
                 {
-                    topic: 'my-topic',
-                    key: 'hello',
-                    value: 'world',
-                }
-            ]
+                    key: String(post._id),
+                    value: JSON.stringify(post.toJSON()),
+                },
+            ],
         });
         return post;
     }

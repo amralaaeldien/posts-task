@@ -1,30 +1,27 @@
-import type { PostDto } from './post.dto.ts';
+import type { PostDto } from './post.dto.js';
 import { PostRepository } from './post.repository.js';
-import mongoose, { Types } from 'mongoose';
-import  producerKafka from './post.producer.js';
+import { producer } from './post.producer.js';
 
 export class PostService {
 
-    constructor(private readonly repository= new PostRepository()) {}
+    constructor(private readonly repository = new PostRepository()) {}
 
     async listPosts() {
-        const posts = await this.repository.listPosts();
-        return posts;
+        return await this.repository.listPosts();
     }
 
     async createPost(postData: PostDto) {
         const post = await this.repository.createPost(postData);
 
-       await producerKafka.send({
-        messages: [
-            {
-                topic: 'my-topic',
-                key: 'hello',
-                value: 'world',
-            }
-        ]
+        await producer.send({
+            topic: "post-created",
+            messages: [
+                {
+                    key: String(post._id),
+                    value: JSON.stringify(post.toJSON()),
+                },
+            ],
         });
-
 
         return post;
     }

@@ -1,49 +1,48 @@
-import type { PostDto } from './post.dto.ts';
+import type { PostDto } from './post.dto.js';
 import { PostRepository } from './post.repository.js';
-import mongoose, { Types } from 'mongoose';
 export declare class PostService {
     private readonly repository;
     constructor(repository?: PostRepository);
-    listPosts(): Promise<(mongoose.Document<unknown, {}, {
+    listPosts(): Promise<(import("mongoose").Document<unknown, {}, {
         title: string;
         content: string;
     }, {
         id: string;
-    }, mongoose.DefaultSchemaOptions> & Omit<{
+    }, import("mongoose").DefaultSchemaOptions> & Omit<{
         title: string;
         content: string;
     } & {
-        _id: Types.ObjectId;
+        _id: import("mongoose").Types.ObjectId;
     } & {
         __v: number;
     }, "id"> & {
         id: string;
     })[]>;
-    createPost(postData: PostDto): Promise<mongoose.Document<unknown, {}, {
+    createPost(postData: PostDto): Promise<import("mongoose").Document<unknown, {}, {
         title: string;
         content: string;
     }, {
         id: string;
-    }, mongoose.DefaultSchemaOptions> & Omit<{
+    }, import("mongoose").DefaultSchemaOptions> & Omit<{
         title: string;
         content: string;
     } & {
-        _id: Types.ObjectId;
+        _id: import("mongoose").Types.ObjectId;
     } & {
         __v: number;
     }, "id"> & {
         id: string;
     }>;
-    getPost(postId: string): Promise<(mongoose.Document<unknown, {}, {
+    getPost(postId: string): Promise<(import("mongoose").Document<unknown, {}, {
         title: string;
         content: string;
     }, {
         id: string;
-    }, mongoose.DefaultSchemaOptions> & Omit<{
+    }, import("mongoose").DefaultSchemaOptions> & Omit<{
         title: string;
         content: string;
     } & {
-        _id: Types.ObjectId;
+        _id: import("mongoose").Types.ObjectId;
     } & {
         __v: number;
     }, "id"> & {
