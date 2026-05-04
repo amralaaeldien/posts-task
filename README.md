@@ -4,7 +4,7 @@ This is a simple API designed to create, list and view the details of created po
 
 ## Technologies Used
 
-Docker, Nodejs, Expressjs, Kafka, MongoDB
+Typescript, Javascript, Docker, Nodejs, Expressjs, Kafka, MongoDB
 
 ## The User and System Flow
 
